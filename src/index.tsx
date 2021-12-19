@@ -9,8 +9,8 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo managed workflow\n';
 
-const HomeplusTwilioVoice = NativeModules.HomeplusTwilioVoice
-  ? NativeModules.HomeplusTwilioVoice
+const RNTwilioVoice = NativeModules.RNTwilioVoice
+  ? NativeModules.RNTwilioVoice
   : new Proxy(
       {},
       {
@@ -32,7 +32,7 @@ const Twilio = {
         err: "Invalid token, token must be a string",
       };
     }
-    const result = await HomeplusTwilioVoice.initWithAccessToken(token);
+    const result = await RNTwilioVoice.initWithAccessToken(token);
     // native react promise present only for Android
     // iOS initWithAccessToken doesn't return
     if (Platform.OS === IOS) {
@@ -43,7 +43,7 @@ const Twilio = {
     return result;
   },
   configureCallKit(params = {}) {
-    HomeplusTwilioVoice.configureCallKit(params);
+    RNTwilioVoice.configureCallKit(params);
   }
 };
 export default Twilio;
