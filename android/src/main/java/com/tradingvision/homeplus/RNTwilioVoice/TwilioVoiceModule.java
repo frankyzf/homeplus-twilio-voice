@@ -142,6 +142,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void initWithAccessToken(final String accessToken, Promise promise) {
+        Log.i(TAG, "initWithAccessToken:" + accessToken);
         if (accessToken.equals("")) {
             Log.e(TAG, "access token is empty, return directly");
             promise.reject(new JSApplicationIllegalArgumentException("Invalid access token"));
@@ -151,20 +152,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "initWithAccessToken():" + TwilioVoiceModule.this.myAccessToken);
         }
-
-        try {
-            Activity currentActivity = getCurrentActivity();
-            if (null != currentActivity) {
-                Class toActivity = Class.forName("com.tradingvision.homeplus.RNTwilioVoice.VoiceActivity");
-                Intent intent = new Intent(currentActivity, toActivity);
-                // intent.putExtra("params", params);
-                currentActivity.startActivity(intent);
-				        promise.resolve(true);
-            }
-        } catch (Exception e) {
-            promise.reject( new JSApplicationIllegalArgumentException(
-                    "can not open activity : " + e.getMessage()));
-        }
+        promise.resolve(null);
     }
 
     @ReactMethod
@@ -176,6 +164,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule {
         if (TwilioVoiceModule.voiceInstance == null) {
             Log.e(TAG, "voice instance is null");
         } else {
+            Log.e(TAG, "voice instance begin to register for call with token:" + this.myAccessToken);
             TwilioVoiceModule.voiceInstance.accessToken = this.myAccessToken;
             TwilioVoiceModule.voiceInstance.registerForCallInvites();
         }
@@ -184,10 +173,12 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule {
     public static Bundle getActivityLaunchOption(Intent intent) {
         Bundle initialProperties = new Bundle();
         if (intent == null || intent.getAction() == null) {
+            Log.e(TAG, "intent is null or intent action is null");
             return initialProperties;
         }
 
         Bundle callBundle = new Bundle();
+        Log.i(TAG, "getActivityLaunchOption action is " + intent.getAction());
         switch (intent.getAction()) {
             case Constants.ACTION_INCOMING_CALL_NOTIFICATION:
                 callBundle.putString(Constants.CALL_SID, intent.getStringExtra(Constants.CALL_SID));

@@ -140,26 +140,7 @@ public class VoiceActivity extends AppCompatActivity {
          */
         handleIncomingCallIntent(getIntent());
 
-        /*
-         * Ensure required permissions are enabled
-         */
-        if (Build.VERSION.SDK_INT > VERSION_CODES.R) {
-            if (!hasPermissions(this, Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.BLUETOOTH_CONNECT)) {
-                requestPermissionForMicrophoneAndBluetooth();
-            } else {
-//                registerForCallInvites();
-                Log.i(TAG, "init permission for audio and bluetooth is already granted");
-            }
-        } else {
-            if (!hasPermissions(this, Manifest.permission.RECORD_AUDIO)) {
-                requestPermissionForMicrophone();
-            } else {
-//                registerForCallInvites();
-                Log.i(TAG, "init permission for audio is already granted");
 
-            }
-        }
 
         /*
          * Setup audio device management and set the volume control stream
@@ -167,6 +148,30 @@ public class VoiceActivity extends AppCompatActivity {
         audioSwitch = new AudioSwitch(getApplicationContext());
         savedVolumeControlStream = getVolumeControlStream();
         setVolumeControlStream(AudioManager.STREAM_VOICE_CALL);
+
+      /*
+       * Ensure required permissions are enabled
+       */
+      if (Build.VERSION.SDK_INT > VERSION_CODES.R) {
+        if (!hasPermissions(this, Manifest.permission.RECORD_AUDIO,
+          Manifest.permission.BLUETOOTH_CONNECT)) {
+          requestPermissionForMicrophoneAndBluetooth();
+          finish();
+        } else {
+//                registerForCallInvites();
+          Log.i(TAG, "init permission for audio and bluetooth is already granted");
+          finish();
+        }
+      } else {
+        if (!hasPermissions(this, Manifest.permission.RECORD_AUDIO)) {
+          requestPermissionForMicrophone();
+          finish();
+        } else {
+//                registerForCallInvites();
+          Log.i(TAG, "init permission for audio is already granted");
+          finish();
+        }
+      }
     }
 
     @Override
