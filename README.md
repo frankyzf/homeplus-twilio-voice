@@ -1,17 +1,17 @@
-# react-native-homeplus-twilio-voice
+# homeplus-twilio-voice
 
-twilio voice 
+twilio voice
 
 ## Installation
 
 ```sh
-npm install react-native-homeplus-twilio-voice
+npm install homeplus-twilio-voice
 ```
 
 ## Usage
 
 ```js
-import { multiply } from "react-native-homeplus-twilio-voice";
+import { multiply } from "homeplus-twilio-voice";
 
 // ...
 

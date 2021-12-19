@@ -168,20 +168,43 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void configureCallKit(ReadableMap params, Promise promise) {
+    public void configureCallKit(ReadableMap params) {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "configureCallKit(). Params: " + params);
         }
-		String name = params.getString("name");
+		    String name = params.getString("name");
         if (TwilioVoiceModule.voiceInstance == null) {
             Log.e(TAG, "voice instance is null");
-			promise.reject(new JSApplicationIllegalArgumentException("voice instance is null"));
         } else {
             TwilioVoiceModule.voiceInstance.accessToken = this.myAccessToken;
             TwilioVoiceModule.voiceInstance.registerForCallInvites();
-			promise.resolve(true);
+        }
+    }
+
+    public static Bundle getActivityLaunchOption(Intent intent) {
+        Bundle initialProperties = new Bundle();
+        if (intent == null || intent.getAction() == null) {
+            return initialProperties;
         }
 
+        Bundle callBundle = new Bundle();
+        switch (intent.getAction()) {
+            case Constants.ACTION_INCOMING_CALL_NOTIFICATION:
+                callBundle.putString(Constants.CALL_SID, intent.getStringExtra(Constants.CALL_SID));
+                callBundle.putString(Constants.CALL_FROM, intent.getStringExtra(Constants.CALL_FROM));
+                callBundle.putString(Constants.CALL_TO, intent.getStringExtra(Constants.CALL_TO));
+                initialProperties.putBundle(Constants.CALL_INVITE_KEY, callBundle);
+                break;
+
+            case Constants.ACTION_ACCEPT:
+                callBundle.putString(Constants.CALL_SID, intent.getStringExtra(Constants.CALL_SID));
+                callBundle.putString(Constants.CALL_FROM, intent.getStringExtra(Constants.CALL_FROM));
+                callBundle.putString(Constants.CALL_TO, intent.getStringExtra(Constants.CALL_TO));
+                callBundle.putString(Constants.CALL_STATE, Constants.CALL_STATE_CONNECTED);
+                initialProperties.putBundle(Constants.CALL_KEY, callBundle);
+                break;
+        }
+        return initialProperties;
     }
 
 }

@@ -1,6 +1,6 @@
 {
-  "name": "react-native-homeplus-twilio-voice-example",
-  "description": "Example app for react-native-homeplus-twilio-voice",
+  "name": "homeplus-twilio-voice-example",
+  "description": "Example app for homeplus-twilio-voice",
   "version": "0.0.1",
   "private": true,
   "scripts": {

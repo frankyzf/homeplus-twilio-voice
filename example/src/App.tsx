@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
-// import { twilio } from 'react-native-homeplus-twilio-voice';
+// import { twilio } from 'homeplus-twilio-voice';
 
 export default function App() {
   const [result] = React.useState<number | undefined>();

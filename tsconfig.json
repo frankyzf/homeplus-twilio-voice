@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-homeplus-twilio-voice": ["./src/index"]
+      "homeplus-twilio-voice": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

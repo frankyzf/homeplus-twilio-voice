@@ -16,7 +16,7 @@
     "android",
     "ios",
     "cpp",
-    "react-native-homeplus-twilio-voice.podspec",
+    "homeplus-twilio-voice.podspec",
     "!lib/typescript/example",
     "!android/build",
     "!ios/build"
@@ -37,13 +37,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/frankyzf/react-native-homeplus-twilio-voice",
+  "repository": "https://github.com/frankyzf/homeplus-twilio-voice",
   "author": "feng zhong <frankyzf@gmail.com> (https://github.com/frankyzf)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/frankyzf/react-native-homeplus-twilio-voice/issues"
+    "url": "https://github.com/frankyzf/homeplus-twilio-voice/issues"
   },
-  "homepage": "https://github.com/frankyzf/react-native-homeplus-twilio-voice#readme",
+  "homepage": "https://github.com/frankyzf/homeplus-twilio-voice#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

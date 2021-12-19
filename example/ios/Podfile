@@ -8,7 +8,7 @@ target 'HomeplusTwilioVoiceExample' do
 
   use_react_native!(:path => config["reactNativePath"])
 
-  pod 'react-native-homeplus-twilio-voice', :path => '../..'
+  pod 'homeplus-twilio-voice', :path => '../..'
 
   # Enables Flipper.
   #
