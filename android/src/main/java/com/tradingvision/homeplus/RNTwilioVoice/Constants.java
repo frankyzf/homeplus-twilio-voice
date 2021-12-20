@@ -9,6 +9,7 @@ public class Constants {
     public static final int CLEAR_MISSED_CALLS_NOTIFICATION_ID = 21;
     public static final String PREFERENCE_KEY = "com.tradingvision.homeplus.RNTwilioVoice.PREFERENCE_FILE_KEY";
 
+    public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
     public static final String CALL_SID_KEY = "CALL_SID";
     public static final String VOICE_CHANNEL_LOW_IMPORTANCE = "notification-channel-low-importance";
     public static final String VOICE_CHANNEL_HIGH_IMPORTANCE = "notification-channel-high-importance";
@@ -24,7 +25,7 @@ public class Constants {
     public static final String ACTION_INCOMING_CALL_NOTIFICATION = "ACTION_INCOMING_CALL_NOTIFICATION";
     public static final String ACTION_CANCEL_CALL = "ACTION_CANCEL_CALL";
     public static final String ACTION_FCM_TOKEN = "ACTION_FCM_TOKEN";
-    public static final String ACTION_CLEAR_MISSED_CALLS_COUNT = "CLEAR_MISSED_CALLS_COUNT";
+  public static final String ACTION_CLEAR_MISSED_CALLS_COUNT = "CLEAR_MISSED_CALLS_COUNT";
     public static final String ACTION_OPEN_CALL_IN_PROGRESS = "CALL_IN_PROGRESS";
     public static final String ACTION_JS_ANSWER = "ACTION_JS_ANSWER";
     public static final String ACTION_JS_REJECT = "ACTION_JS_REJECT";

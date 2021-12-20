@@ -15,7 +15,9 @@ import android.graphics.Color;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Binder;
 import android.os.IBinder;
+import android.content.ComponentName;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -34,6 +36,21 @@ import static com.tradingvision.homeplus.RNTwilioVoice.CallNotificationManager.g
 import static com.tradingvision.homeplus.RNTwilioVoice.TwilioVoiceModule.TAG;
 
 public class IncomingCallNotificationService extends Service {
+
+    //client 可以通过Binder获取Service实例
+    public class MyBinder extends Binder {
+      public IncomingCallNotificationService getService() {
+        return IncomingCallNotificationService.this;
+      }
+    }
+    //通过binder实现调用者client与Service之间的通信
+    private MyBinder binder = new MyBinder();
+
+    @Override
+    public void onCreate() {
+      Log.i(TAG,"IncomingCallNotificationService is create with name: " + Thread.currentThread().getName());
+      super.onCreate();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -80,6 +97,19 @@ public class IncomingCallNotificationService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    /*
+     * Register your FCM token with Twilio to receive incoming call invites
+     */
+    public void registerForCallInvites(String accessToken) {
+      Log.i(TAG, "begin to Registering for call invite with accessToken:" + accessToken);
+      Intent intent = new Intent(this, getMainActivityClass(this));
+      intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      intent.setAction(Constants.ACTION_FCM_TOKEN);
+      intent.putExtra(Constants.ACCESS_TOKEN, accessToken);
+      this.startActivity(intent);
     }
 
     private Notification createNotification(CallInvite callInvite, int notificationId, int channelImportance) {
@@ -319,10 +349,10 @@ public class IncomingCallNotificationService extends Service {
     }
 
     private boolean isAppVisible() {
-        return ProcessLifecycleOwner
-                .get()
-                .getLifecycle()
-                .getCurrentState()
-                .isAtLeast(Lifecycle.State.STARTED);
+      return ProcessLifecycleOwner
+        .get()
+        .getLifecycle()
+        .getCurrentState()
+        .isAtLeast(Lifecycle.State.STARTED);
     }
 }

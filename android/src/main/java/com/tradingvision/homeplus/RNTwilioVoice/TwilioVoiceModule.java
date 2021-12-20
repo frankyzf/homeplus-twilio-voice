@@ -44,6 +44,11 @@ import kotlin.Unit;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.content.ServiceConnection;
+import android.os.Binder;
+import android.os.IBinder;
+import android.content.ComponentName;
+
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -95,7 +100,7 @@ import java.util.Set;
 import java.util.Map;
 
 import kotlin.Unit;
-import com.tradingvision.homeplus.RNTwilioVoice.VoiceActivity;
+import com.tradingvision.homeplus.RNTwilioVoice.IncomingCallNotificationService;
 
 import static com.tradingvision.homeplus.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_CONNECT;
 import static com.tradingvision.homeplus.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_DISCONNECT;
@@ -114,88 +119,99 @@ import com.facebook.react.module.annotations.ReactModule;
 
 public class TwilioVoiceModule extends ReactContextBaseJavaModule {
 
-    public static String TAG = "RNTwilioVoice";
-    private static VoiceActivity voiceInstance;
-    private String myAccessToken;
-
-    public TwilioVoiceModule(ReactApplicationContext reactContext) {
-        super(reactContext);
-
-        if (BuildConfig.DEBUG) {
-            Voice.setLogLevel(LogLevel.DEBUG);
-        } else {
-            Voice.setLogLevel(LogLevel.ERROR);
-        }
-
+  public static String TAG = "RNTwilioVoice";
+  private String myAccessToken = "";
+  private IncomingCallNotificationService service = null;
+  private boolean isBind = false;
+  private ServiceConnection conn = new ServiceConnection() {
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder binder) {
+      isBind = true;
+      IncomingCallNotificationService.MyBinder myBinder = (IncomingCallNotificationService.MyBinder)binder;
+      service = myBinder.getService();
+      Log.i(TAG, "incomingService conncted");
     }
 
     @Override
-	@NonNull
-    public String getName() {
-        return TAG;
+    public void onServiceDisconnected(ComponentName name) {
+      isBind = false;
+      Log.i(TAG, "incomingService is disconnected");
     }
+  };
 
-    public static void SetVoiceInstance(VoiceActivity p) {
-        voiceInstance = p;
-        Log.i(TAG, "voice instance is set");
+
+
+  public TwilioVoiceModule(ReactApplicationContext reactContext) {
+      super(reactContext);
+      if (BuildConfig.DEBUG) {
+          Voice.setLogLevel(LogLevel.DEBUG);
+      } else {
+          Voice.setLogLevel(LogLevel.ERROR);
+      }
+  }
+
+  @Override
+  @NonNull
+  public String getName() {
+      return TAG;
+  }
+
+  @ReactMethod
+  public void initWithAccessToken(final String accessToken, Promise promise) {
+      Log.i(TAG, "initWithAccessToken:" + accessToken);
+      if (accessToken.equals("")) {
+          Log.e(TAG, "access token is empty, return directly");
+          promise.reject(new JSApplicationIllegalArgumentException("Invalid access token"));
+          return;
+      }
+      TwilioVoiceModule.this.myAccessToken = accessToken;
+      if (BuildConfig.DEBUG) {
+          Log.d(TAG, "initWithAccessToken():" + TwilioVoiceModule.this.myAccessToken);
+      }
+      promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void configureCallKit(ReadableMap params) {
+    if (BuildConfig.DEBUG) {
+        Log.d(TAG, "configureCallKit(). Params: " + params);
     }
-
-    @ReactMethod
-    public void initWithAccessToken(final String accessToken, Promise promise) {
-        Log.i(TAG, "initWithAccessToken:" + accessToken);
-        if (accessToken.equals("")) {
-            Log.e(TAG, "access token is empty, return directly");
-            promise.reject(new JSApplicationIllegalArgumentException("Invalid access token"));
-            return;
-        }
-        TwilioVoiceModule.this.myAccessToken = accessToken;
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "initWithAccessToken():" + TwilioVoiceModule.this.myAccessToken);
-        }
-        promise.resolve(null);
+    String name = params.getString("name");
+    Log.i(TAG, "voice instance begin to register for call with name:" + name + " token:" + this.myAccessToken);
+    if (this.isBind == false) {
+      Log.e(TAG, "service is not bound yet");
+    } else{
+      Log.i(TAG, "service begin to register for call invites");
+      this.service.registerForCallInvites(this.myAccessToken);
     }
+  }
 
-    @ReactMethod
-    public void configureCallKit(ReadableMap params) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "configureCallKit(). Params: " + params);
-        }
-		    String name = params.getString("name");
-        if (TwilioVoiceModule.voiceInstance == null) {
-            Log.e(TAG, "voice instance is null");
-        } else {
-            Log.e(TAG, "voice instance begin to register for call with token:" + this.myAccessToken);
-            TwilioVoiceModule.voiceInstance.accessToken = this.myAccessToken;
-            TwilioVoiceModule.voiceInstance.registerForCallInvites();
-        }
-    }
+  public static Bundle getActivityLaunchOption(Intent intent) {
+      Bundle initialProperties = new Bundle();
+      if (intent == null || intent.getAction() == null) {
+          Log.e(TAG, "intent is null or intent action is null");
+          return initialProperties;
+      }
 
-    public static Bundle getActivityLaunchOption(Intent intent) {
-        Bundle initialProperties = new Bundle();
-        if (intent == null || intent.getAction() == null) {
-            Log.e(TAG, "intent is null or intent action is null");
-            return initialProperties;
-        }
+      Bundle callBundle = new Bundle();
+      Log.i(TAG, "getActivityLaunchOption action is " + intent.getAction());
+      switch (intent.getAction()) {
+          case Constants.ACTION_INCOMING_CALL_NOTIFICATION:
+              callBundle.putString(Constants.CALL_SID, intent.getStringExtra(Constants.CALL_SID));
+              callBundle.putString(Constants.CALL_FROM, intent.getStringExtra(Constants.CALL_FROM));
+              callBundle.putString(Constants.CALL_TO, intent.getStringExtra(Constants.CALL_TO));
+              initialProperties.putBundle(Constants.CALL_INVITE_KEY, callBundle);
+              break;
 
-        Bundle callBundle = new Bundle();
-        Log.i(TAG, "getActivityLaunchOption action is " + intent.getAction());
-        switch (intent.getAction()) {
-            case Constants.ACTION_INCOMING_CALL_NOTIFICATION:
-                callBundle.putString(Constants.CALL_SID, intent.getStringExtra(Constants.CALL_SID));
-                callBundle.putString(Constants.CALL_FROM, intent.getStringExtra(Constants.CALL_FROM));
-                callBundle.putString(Constants.CALL_TO, intent.getStringExtra(Constants.CALL_TO));
-                initialProperties.putBundle(Constants.CALL_INVITE_KEY, callBundle);
-                break;
-
-            case Constants.ACTION_ACCEPT:
-                callBundle.putString(Constants.CALL_SID, intent.getStringExtra(Constants.CALL_SID));
-                callBundle.putString(Constants.CALL_FROM, intent.getStringExtra(Constants.CALL_FROM));
-                callBundle.putString(Constants.CALL_TO, intent.getStringExtra(Constants.CALL_TO));
-                callBundle.putString(Constants.CALL_STATE, Constants.CALL_STATE_CONNECTED);
-                initialProperties.putBundle(Constants.CALL_KEY, callBundle);
-                break;
-        }
-        return initialProperties;
-    }
+          case Constants.ACTION_ACCEPT:
+              callBundle.putString(Constants.CALL_SID, intent.getStringExtra(Constants.CALL_SID));
+              callBundle.putString(Constants.CALL_FROM, intent.getStringExtra(Constants.CALL_FROM));
+              callBundle.putString(Constants.CALL_TO, intent.getStringExtra(Constants.CALL_TO));
+              callBundle.putString(Constants.CALL_STATE, Constants.CALL_STATE_CONNECTED);
+              initialProperties.putBundle(Constants.CALL_KEY, callBundle);
+              break;
+      }
+      return initialProperties;
+  }
 
 }
