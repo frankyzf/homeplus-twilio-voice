@@ -19,7 +19,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.tradingvision.homeplus.RNTwilioVoice.Constants;
 import com.tradingvision.homeplus.RNTwilioVoice.IncomingCallNotificationService;
 import com.twilio.voice.CallException;
-import com.tradingvision.homeplus.RNTwilioVoice.BuildConfig;
+import com.facebook.react.BuildConfig;
 import com.tradingvision.homeplus.RNTwilioVoice.CallNotificationManager;
 import com.twilio.voice.CallInvite;
 import com.twilio.voice.CancelledCallInvite;

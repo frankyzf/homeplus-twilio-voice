@@ -102,6 +102,7 @@ import java.util.Map;
 import kotlin.Unit;
 import com.tradingvision.homeplus.RNTwilioVoice.IncomingCallNotificationService;
 
+import static com.tradingvision.homeplus.RNTwilioVoice.CallNotificationManager.getMainActivityClass;
 import static com.tradingvision.homeplus.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_CONNECT;
 import static com.tradingvision.homeplus.RNTwilioVoice.EventManager.EVENT_CONNECTION_DID_DISCONNECT;
 import static com.tradingvision.homeplus.RNTwilioVoice.EventManager.EVENT_DEVICE_DID_RECEIVE_INCOMING;
@@ -121,23 +122,7 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule {
 
   public static String TAG = "RNTwilioVoice";
   private String myAccessToken = "";
-  private IncomingCallNotificationService service = null;
-  private boolean isBind = false;
-  private ServiceConnection conn = new ServiceConnection() {
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder binder) {
-      isBind = true;
-      IncomingCallNotificationService.MyBinder myBinder = (IncomingCallNotificationService.MyBinder)binder;
-      service = myBinder.getService();
-      Log.i(TAG, "incomingService conncted");
-    }
 
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-      isBind = false;
-      Log.i(TAG, "incomingService is disconnected");
-    }
-  };
 
 
 
@@ -178,12 +163,21 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule {
     }
     String name = params.getString("name");
     Log.i(TAG, "voice instance begin to register for call with name:" + name + " token:" + this.myAccessToken);
-    if (this.isBind == false) {
-      Log.e(TAG, "service is not bound yet");
-    } else{
-      Log.i(TAG, "service begin to register for call invites");
-      this.service.registerForCallInvites(this.myAccessToken);
-    }
+    this.registerForCallInvites(this.myAccessToken);
+  }
+
+  /*
+   * Register your FCM token with Twilio to receive incoming call invites
+   */
+  public void registerForCallInvites(String accessToken) {
+    Log.i(TAG, "begin to Registering for call invite with accessToken:" + accessToken);
+    Activity currentActivity = getCurrentActivity();
+    Intent intent = new Intent(currentActivity, getMainActivityClass(this.getReactApplicationContext()));
+    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    intent.setAction(Constants.ACTION_FCM_TOKEN);
+    intent.putExtra(Constants.ACCESS_TOKEN, accessToken);
+    currentActivity.startActivity(intent);
   }
 
   public static Bundle getActivityLaunchOption(Intent intent) {

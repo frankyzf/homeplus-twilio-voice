@@ -58,38 +58,40 @@ public class IncomingCallNotificationService extends Service {
             Log.d(TAG, "IncomingCallNotificationService onStartCommand() intent: " + intent + ", flags: " + flags);
         }
         String action = intent.getAction();
+        Log.i(TAG, "IncomingCallNotificationService got action:" + action);
+        if (action != null ) {
+          CallInvite callInvite = intent.getParcelableExtra(Constants.INCOMING_CALL_INVITE);
+          int notificationId = intent.getIntExtra(Constants.INCOMING_CALL_NOTIFICATION_ID, 0);
 
-        CallInvite callInvite = intent.getParcelableExtra(Constants.INCOMING_CALL_INVITE);
-        int notificationId = intent.getIntExtra(Constants.INCOMING_CALL_NOTIFICATION_ID, 0);
-
-        switch (action) {
+          switch (action) {
             // when a callInvite is received in the background
             case Constants.ACTION_INCOMING_CALL:
-                handleIncomingCall(callInvite, notificationId);
-                break;
+              handleIncomingCall(callInvite, notificationId);
+              break;
 
             case Constants.ACTION_ACCEPT:
-                accept(callInvite, notificationId);
-                break;
+              accept(callInvite, notificationId);
+              break;
 
             case Constants.ACTION_REJECT:
-                reject(callInvite, notificationId);
-                break;
+              reject(callInvite, notificationId);
+              break;
 
             case Constants.ACTION_CANCEL_CALL:
-                handleCancelledCall(intent);
-                break;
+              handleCancelledCall(intent);
+              break;
 
             case Constants.ACTION_JS_ANSWER:
-                endForeground();
-                break;
+              endForeground();
+              break;
 
             case Constants.ACTION_JS_REJECT:
-                endForeground();
-                break;
+              endForeground();
+              break;
 
             default:
-                break;
+              break;
+          }
         }
         return START_NOT_STICKY;
     }
@@ -99,18 +101,7 @@ public class IncomingCallNotificationService extends Service {
         return null;
     }
 
-    /*
-     * Register your FCM token with Twilio to receive incoming call invites
-     */
-    public void registerForCallInvites(String accessToken) {
-      Log.i(TAG, "begin to Registering for call invite with accessToken:" + accessToken);
-      Intent intent = new Intent(this, getMainActivityClass(this));
-      intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-      intent.setAction(Constants.ACTION_FCM_TOKEN);
-      intent.putExtra(Constants.ACCESS_TOKEN, accessToken);
-      this.startActivity(intent);
-    }
+
 
     private Notification createNotification(CallInvite callInvite, int notificationId, int channelImportance) {
         Context context = getApplicationContext();
