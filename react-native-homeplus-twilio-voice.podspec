@@ -10,10 +10,14 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "10.0" }
+  s.platforms    = { :ios => "11.0" }
   s.source       = { :git => "https://github.com/frankyzf/homeplus-twilio-voice.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm}"
 
   s.dependency "React-Core"
+  s.dependency 'TwilioVoice', '~> 5.2.0'
+  s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/TwilioVoice/Build/iOS' }
+  s.frameworks   = 'TwilioVoice'
+  s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'
 end
